@@ -36,18 +36,6 @@ Scenario: Add a new pet to the store
     * def id = response.id
     * print 'created id is: ', id
 
-@updatePet
-Scenario: Update a pet in the store with form data
-
-    * def addPet = call read('users.feature@addPet')
-    Given path 'pet/' + addPet.id
-    And form field name = 'Luna'
-    And form field status = 'pending'
-    When method post
-    Then status 200
-
-    * def id = response.message
-
 Scenario Outline: Finds Pets by Status
   
   Given path 'pet/findByStatus'
@@ -94,6 +82,17 @@ Scenario: Update an existing pet
     * def name = response.name
     * print 'current name: ', name
 
+@updatePet
+Scenario: Update a pet in the store with form data
+
+    * def addPet = call read('users.feature@addPet')
+    Given path 'pet/' + addPet.id
+    And form field name = 'Luna'
+    And form field status = 'pending'
+    When method post
+    Then status 200
+    * def id = response.message
+
 Scenario: Find pet by ID
 
     * def updatePet = call read('users.feature@updatePet')
@@ -102,6 +101,48 @@ Scenario: Find pet by ID
     Then status 200
     And match response.name == 'Luna'
 
+Scenario: Deletes a pet 
+
+   * def addPet = call read('users.feature@addPet')
+   Given path 'pet/' + addPet.id
+   When method delete
+   Then status 200
+
+@addStore
+Scenario: Place an order for a pet
+
+    * def store = 
+    """
+      {
+        "id": 0,
+        "petId": 0,
+        "quantity": 0,
+        "shipDate": "2022-04-06T20:30:40.727Z",
+        "status": "placed",
+        "complete": true
+      }
+    """
+    Given path 'store/order'
+    And request store
+    When method post
+    Then status 200
+
+    * def id = response.id
+    * print 'created id is: ', id    
+
+Scenario: Find purchase order by id
+
+    * def addStore = call read('users.feature@addStore')
+    Given path 'store/order' + addStore.id
+    When method get
+    Then status 200
+
+Scenario: Delete purchase order by id
+
+    * def addStore = call read('users.feature@addStore')
+    Given path 'store/order' + addStore.id
+    When method delete
+    Then status 200
 
 
 
