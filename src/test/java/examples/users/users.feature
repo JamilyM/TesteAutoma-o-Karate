@@ -96,7 +96,7 @@ Scenario: Update an existing pet
 
 Scenario: Find pet by ID
 
-    * def addPet = call read('users.feature@updatePet')
+    * def updatePet = call read('users.feature@updatePet')
     Given path 'pet/' + updatePet.id
     When method get
     Then status 200
