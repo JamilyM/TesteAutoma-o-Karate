@@ -133,17 +133,97 @@ Scenario: Place an order for a pet
 Scenario: Find purchase order by id
 
     * def addStore = call read('users.feature@addStore')
-    Given path 'store/order' + addStore.id
+    Given path 'store/order/' + addStore.id
     When method get
     Then status 200
 
 Scenario: Delete purchase order by id
 
     * def addStore = call read('users.feature@addStore')
-    Given path 'store/order' + addStore.id
+    Given path 'store/order/' + addStore.id
     When method delete
     Then status 200
 
+@createWithList
+Scenario: Creates list of users with given input array
+
+    * def randomStringNumber = read('classpath:javascript/random-number-generator.js')
+    * def createWithList = 
+    """
+        [   
+          {
+            "id": 0,
+            "username": "Jamily1718",
+            "firstName": "Jamily",
+            "lastName": "string",
+            "email": "string",
+            "password": "string",
+            "phone": "string",
+            "userStatus": 0
+          }
+        ]    
+    """
+    Given path 'user/createWithList'
+    * set createWithList[0].id = new java.math.BigDecimal(randomStringNumber(15))
+    And request createWithList
+    When method post
+    Then status 200
+
+    * def username =  createWithList[0].username
+    * def firstName = createWithList[0].firstName
+    * def id = createWithList[0].id
+    * print 'username', username
+
+Scenario: Get user by user name
+
+    * def createWithList = call read('users.feature@createWithList')
+    Given path 'user/' + createWithList.username
+    When method get
+    Then status 200
+    * match response.firstName == 'Jamily'
+
+@updateUser
+Scenario: Update user
+
+    * def randomStringNumber = read('classpath:javascript/random-number-generator.js')
+    * def updateUser = 
+    """
+        
+      {
+        "username": "Jamily1718",
+        "firstName": "Jamily",
+        "lastName": "Melo",
+        "email": "string",
+        "password": "1707",
+        "phone": "string",
+        "userStatus": 0
+      }
+        
+    """
+    * def createWithList = call read('users.feature@createWithList')
+    Given path 'user/' + createWithList.username
+    And request updateUser   
+    When method put
+    Then status 200
+
+    * def username = updateUser.username
+    * def password = updateUser.password
+
+Scenario: Delete user
+
+    * def createWithList = call read('users.feature@createWithList')
+    Given path 'user/' + createWithList.username   
+    When method delete
+    Then status 200
+
+Scenario: Login user into the system
+
+    * def updateUser = call read('users.feature@updateUser')
+    Given path 'user/login'
+    And form field password = updateUser.password
+    And form field username = updateUser.username
+    When method get
+    Then status 200
 
 
 
